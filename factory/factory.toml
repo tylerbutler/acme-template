@@ -1,0 +1,136 @@
+# This inactive stub requires owner review before project use.
+# Copying the template does not approve paid work or remote writes.
+schema_version = 0
+repository = "tylerbutler/acme-template"
+profile = "cli"
+languages = ["rust"]
+autonomy = "L3"
+solo = true
+
+[toolchain.acme]
+bootstrap = false
+target_version = "0.1.0"
+
+[toolchain.gh_aw]
+version = "v0.93.5"
+
+[budget]
+enforce_monthly = false
+enforce_ai_credits = true
+max_ai_credits_per_run = 5000
+reason = "Inactive baseline; no paid runs or remote writes are approved."
+
+[engines.intake]
+engine = "copilot"
+token_secret = "GH_PAT"
+
+[engines.build_cloud]
+engine = "copilot"
+model = "gpt-6.1-sol"
+token_secret = "GH_PAT"
+
+[engines.review]
+engine = "copilot"
+enabled = false
+model_policy = "different-from-builder"
+
+[modules.intake]
+enabled = false
+gate = "issue-form"
+staged = true
+workflow_enabled = false
+roles = ["admin"]
+needs = ["labels", "issue-forms"]
+provides = ["triaged-issue"]
+
+[modules.spec]
+enabled = false
+implementation = "human"
+gate = "owner-ready-for-agent"
+needs = ["triaged-issue"]
+provides = ["approved-spec"]
+
+[modules.build_cloud]
+enabled = false
+gate = "owner-ready-for-agent"
+staged = true
+workflow_enabled = false
+assignment_enabled = false
+token_secret = "GH_PAT"
+token_configured = false
+token_verified = false
+max_repositories = 1
+max_pull_requests = 1
+target_minutes = 59
+needs = ["approved-spec", "ci"]
+provides = ["draft-pr"]
+
+[modules.ci]
+enabled = false
+gate = "required-status-check"
+required_checks = ["CI"]
+commands = [
+  "cargo fmt --all -- --check",
+  "cargo clippy --locked --all-targets --all-features -- -D warnings",
+  "cargo test --locked --all-features",
+]
+step_names = [
+  "Check formatting",
+  "Clippy",
+  "Rust tests",
+]
+provides = ["ci"]
+
+[modules.merge]
+enabled = false
+implementation = "human"
+gate = "required-ci-and-resolved-threads"
+required_approvals = 0
+require_extra_approval_for_unattributed_changes = false
+auto_merge = false
+needs = ["ci"]
+provides = ["merged-pr"]
+
+[modules.review]
+enabled = false
+
+[modules.holdout]
+enabled = false
+
+[modules.build_local]
+enabled = false
+
+[modules.release]
+enabled = false
+
+[modules.ops]
+enabled = false
+
+[risk]
+default = "human-merge"
+auto_merge = []
+human_merge = [
+  ".github/**",
+  "factory/**",
+  "schema/**",
+  "AGENTS.md",
+]
+never_agent = [
+  "**/.env",
+  "**/.env.*",
+  "secrets/**",
+  "credentials/**",
+  "scenarios/private/**",
+]
+path_gate_enforced = false
+
+[bootstrap]
+milestone = "M4"
+golden_source = "template-baseline"
+live_loop_verified = false
+deferred = [
+  "interview and spec-writer skills",
+  "deterministic init",
+  "agent workflows",
+  "owner-approved generation and provisioning",
+]
