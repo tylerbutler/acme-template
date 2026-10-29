@@ -13,6 +13,10 @@ diff, then explicitly requests generation with a supported acme version.
 Create a branch and one draft init PR. A human reviews and merges it.
 Do not infer permission for paid work, provisioning or workflow activation.
 
-The interview skills and deterministic init are not part of this baseline.
-Acme `0.1.0` does not implement init. No sample-project milestone run has
-been performed.
+Use the [proposal skills](../README.md#proposal-skills) to interview the owner
+and propose config, then a small feature spec and backlog from the preserved
+brief. The skills return drafts only; they do not write files or run acme.
+Only the owner can approve each build after the spec is reviewed and merged.
+
+Deterministic init is still separate work. Acme `0.1.0` does not implement
+init. No sample-project milestone run has been performed.

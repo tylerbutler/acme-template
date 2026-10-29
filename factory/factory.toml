@@ -129,7 +129,6 @@ milestone = "M4"
 golden_source = "template-baseline"
 live_loop_verified = false
 deferred = [
-  "interview and spec-writer skills",
   "deterministic init",
   "agent workflows",
   "owner-approved generation and provisioning",

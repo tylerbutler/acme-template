@@ -20,6 +20,13 @@ tests for changed behavior.
 - `schema/factory.schema.json`: exact acme stage0 schema; do not edit by hand.
 - `docs/specs/`: reviewed feature specifications.
 - `docs/adr/`: architecture decisions.
+- `.agents/skills/init-interview/`: read-only config interview and proposal.
+- `.agents/skills/spec-writer/`: read-only feature spec and backlog proposal.
+
+For project setup or feature planning, read the matching `SKILL.md` before
+starting. Both skills return proposals in the conversation. They do not
+write files, run acme, publish issues or approve builds. See the root
+README for inputs, outputs and scenario checks.
 
 ## Approval boundaries
 
