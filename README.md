@@ -28,20 +28,55 @@ Use GitHub's **Use this template** action to create your repository. Then:
 
 1. Write the project's goal, users, acceptance checks and limits in
    [`factory/brief.md`](factory/brief.md).
-2. Set the Cargo package name and the `repository` field in
-   [`factory/factory.toml`](factory/factory.toml) to your project's identity.
-   Update the CLI tests when you rename the package.
-3. Review the complete config and diff with the owner. The supplied stub is
-   inactive: all modules and workflow gates are off. Copying it does not
-   approve a new project's config, paid work or remote writes.
-4. Keep authored instructions in [`AGENTS.md`](AGENTS.md), feature specs in
-   [`docs/specs/`](docs/specs/README.md), and decisions in
+2. Use the `init-interview` skill below to propose the complete
+   [`factory/factory.toml`](factory/factory.toml) and its diff. Review the
+   project identity, risks, engines and cost limits. Set the Cargo package
+   name through a separate reviewed change and update the CLI tests.
+3. Have the owner review the complete config and diff before saving the
+   approved config or explicitly invoking a supported init. The supplied
+   stub is inactive: all modules and workflow gates are off. Copying it
+   does not approve a new project's config, paid work or remote writes.
+4. Use `spec-writer` to propose the first feature and backlog from the preserved
+   brief. Keep authored instructions in [`AGENTS.md`](AGENTS.md), reviewed
+   specs in [`docs/specs/`](docs/specs/README.md), and decisions in
    [`docs/adr/`](docs/adr/README.md).
 
 The stub declares CI commands that use only this starter's Cargo inputs.
 No acme-specific Python scripts, module implementations or workflows are
-copied. Review and holdout are unavailable and remain off. The interview and
-spec-writer skills are separate work.
+copied. Review and holdout are unavailable and remain off.
+
+## Proposal skills
+
+The skills live in `.agents/skills/`. If your agent does not discover that
+directory, ask it to read the linked `SKILL.md` and follow it. No CLI command
+or external skill dependency is needed.
+
+| Skill | Input | Output |
+| --- | --- | --- |
+| [`init-interview`](.agents/skills/init-interview/SKILL.md) | Brief, current config, project files and unresolved owner answers | Fact table, complete unapproved config, proposed diff and human handoff |
+| [`spec-writer`](.agents/skills/spec-writer/SKILL.md) | Preserved brief, relevant facts and existing public specs | Proposed small feature spec, acceptance scenarios, non-goals and dependency-ordered backlog |
+
+For example: "Use init-interview to propose config from my brief; do not
+write files." Then: "Use spec-writer to propose the first feature spec and
+backlog from the preserved brief."
+
+Both skills are read-only and ask only unresolved questions. Secret names
+and requirements are allowed inputs; secret values and credentials are not.
+Partial answers, silence and cancellation never authorize generation, remote
+writes or paid work. The skills do not run acme, publish issues, launch agents
+or change settings. They leave the brief and all authored files unchanged.
+
+The owner reviews the complete config and diff before explicitly invoking
+`acme init` with the approved config when a release supports it. Acme `0.1.0`
+does not. Do not use render or sync as an implicit fallback. A human reviews
+and merges a feature spec; only the owner can approve its specific build with
+`ready-for-agent` or direct Copilot assignment. Neither skill grants approval.
+
+Replayable scenario prompts and expectations are in each skill's
+`evals/evals.json`. Run them against a disposable local copy or read-only
+fixture, not a live factory. Check the response and tool transcript, including
+the absence of credential reads, writes and paid calls. These are behavioral
+checks; `just check` covers the Rust starter, not model compliance.
 
 ## Pinned acme contract
 
