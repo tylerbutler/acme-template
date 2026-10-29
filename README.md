@@ -30,13 +30,15 @@ Use GitHub's **Use this template** action to create your repository. Then:
    [`factory/brief.md`](factory/brief.md).
 2. Use the `init-interview` skill below to propose the complete
    [`factory/factory.toml`](factory/factory.toml) and its diff. Review the
-   project identity, risks, engines and cost limits. Set the Cargo package
-   name through a separate reviewed change and update the CLI tests.
+   project identity, risks, engines, cost limits and CI selection. Set the
+   Cargo package name through a separate reviewed change and update the CLI tests.
 3. Have the owner review the complete config and diff before saving the
-   approved config or explicitly invoking a supported init. The supplied
+   approved config and explicitly invoking `acme init`. The supplied
    stub is inactive: all modules and workflow gates are off. Copying it
    does not approve a new project's config, paid work or remote writes.
-4. Use `spec-writer` to propose the first feature and backlog from the preserved
+4. Follow [Initialize approved config](#initialize-approved-config) to prepare
+   one reviewed init PR. Publishing generated CI needs separate owner approval.
+5. Use `spec-writer` to propose the first feature and backlog from the preserved
    brief. Keep authored instructions in [`AGENTS.md`](AGENTS.md), reviewed
    specs in [`docs/specs/`](docs/specs/README.md), and decisions in
    [`docs/adr/`](docs/adr/README.md).
@@ -66,9 +68,14 @@ Partial answers, silence and cancellation never authorize generation, remote
 writes or paid work. The skills do not run acme, publish issues, launch agents
 or change settings. They leave the brief and all authored files unchanged.
 
-The owner reviews the complete config and diff before explicitly invoking
-`acme init` with the approved config when a release supports it. Acme `0.1.0`
-does not. Do not use render or sync as an implicit fallback. A human reviews
+The interview may propose `modules.ci.enabled = true` only after an explicit
+owner answer selects CI. Otherwise it keeps CI off. All other modules and
+agent workflow/assignment flags remain off. This selection proposes local
+CI files; it does not authorize generation, publication or paid work.
+
+The owner reviews the complete config and diff before saving the approved
+config and explicitly invoking `acme init` with the matching `0.2.0` binary.
+Do not use render or sync as an implicit fallback. A human reviews
 and merges a feature spec; only the owner can approve its specific build with
 `ready-for-agent` or direct Copilot assignment. Neither skill grants approval.
 
@@ -80,16 +87,15 @@ checks; `just check` covers the Rust starter, not model compliance.
 
 ## Pinned acme contract
 
-The config uses acme `0.1.0`, `schema_version = 0`, and `bootstrap = false`.
-The adopted stage0 release is
-[`v0.1.0`](https://github.com/tylerbutler/acme/tree/v0.1.0), at commit
-`997a365af1e2b167b2c209f84798006c77860feb`. The tag was retargeted with owner
-approval; old clones can have its previous target. Use that exact commit
-when you verify or build the release.
+The config uses acme `0.2.0`, `schema_version = 0`, and `bootstrap = false`.
+The released version is
+[`v0.2.0`](https://github.com/tylerbutler/acme/tree/v0.2.0), at commit
+`5f1a0df867912ddeb1c11d031e96817d6ca0de07`. Use that exact commit when you
+verify or build the release.
 
 [`schema/factory.schema.json`](schema/factory.schema.json) is an unchanged
 copy from
-[that commit](https://github.com/tylerbutler/acme/blob/997a365af1e2b167b2c209f84798006c77860feb/schema/factory.schema.json).
+[that commit](https://github.com/tylerbutler/acme/blob/5f1a0df867912ddeb1c11d031e96817d6ca0de07/schema/factory.schema.json).
 Its SHA-256 is
 `ed4ad9562a211a0fa2a61db237756d74508d388159d6017d11ded3817e032102`.
 Use it to validate the complete TOML document as JSON. Do not remove fields
@@ -101,22 +107,47 @@ the matching release binary before approved local generation. The required
 `toolchain.gh_aw` field records the compatible compiler version; no agent
 compiler is needed for this inactive baseline.
 
-`acme init` is not implemented in `0.1.0`. Do not treat `render` or `sync`
-as a completed init flow. With a reviewed config, the matching binary can
-render into a new or empty temporary directory:
+## Initialize approved config
+
+The human reviews the complete proposal and diff, then saves the approved
+config to `factory/factory.toml`. The existing config must match the approved
+bytes; init does not replace a different config. With the matching binary
+explicitly installed, the human creates a branch and invokes local generation:
 
 ```sh
-acme render --config factory/factory.toml --output /tmp/my-project-preview
+git switch -c factory-init
+acme init --config factory/factory.toml
+just check
+git status --short
+git diff
 ```
 
-With all modules off, the stub renders no files. There is no ownership
-record yet. Generation does not provision labels or rulesets, upload
-secrets, activate workflows, authorize inference, or approve a merge.
-Those actions need separate owner approval. The later init change set
-must use a branch and draft PR; a human reviews and merges it.
+Init supports this single-package Rust project and the stub's Cargo commands.
+It rejects missing source inputs, incompatible pins, workspaces, `.cargo`
+config overrides and conflicting generated files before writes. Commands
+with `--locked` need a valid `Cargo.lock`. See the
+[released init contract](https://github.com/tylerbutler/acme/blob/v0.2.0/README.md#local-init)
+before proposing other CI commands.
 
-See the [M4 contract](https://github.com/tylerbutler/acme/blob/997a365af1e2b167b2c209f84798006c77860feb/docs/specs/0005-m4-init-template-contract.md)
-and [baseline issue](https://github.com/tylerbutler/acme/issues/83) for scope.
+With all modules off, init writes only the ownership record and preserves
+the approved config and authored files. With CI selected, it also generates
+`.github/workflows/ci.yml` and `.github/actions/setup-rust/action.yml`.
+Stage only the reviewed config, ownership record and exact generated paths
+listed by init. Review `git diff --cached`, commit the change, then explicitly
+open a draft PR with `gh pr create --draft`. A human reviews and merges it.
+Publishing CI files can start ordinary Actions jobs and needs separate
+owner approval. It does not approve paid agent work.
+
+An existing ownership record blocks init. Review the project and use the safe
+sync path instead; do not delete the record to force initialization. Init does
+not execute CI commands, contact GitHub, provision labels or rulesets, upload
+secrets, activate agent workflows, create a branch/PR, or approve a merge.
+Generation can leave partial changes after an I/O failure; inspect the result
+and do not run it with concurrent checkout writers.
+
+See the [M4 contract](https://github.com/tylerbutler/acme/blob/5f1a0df867912ddeb1c11d031e96817d6ca0de07/docs/specs/0005-m4-init-template-contract.md)
+and [tylerbutler/acme#86](https://github.com/tylerbutler/acme/issues/86) for the
+separately approved sample-project run. This template update does not complete it.
 
 ## License
 

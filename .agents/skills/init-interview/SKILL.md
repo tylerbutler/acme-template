@@ -13,7 +13,8 @@ Answers describe desired settings; they do not authorize actions.
 - Work locally and read-only. Return proposals in the conversation, not files.
   Do not edit the brief, config, source, instructions or generated files.
 - Do not run `acme init`, render, sync, doctor, provisioning or project commands.
-  Acme `0.1.0` has no init implementation. Do not invent flags or substitute sync.
+  Acme `0.2.0` supports local init, but the human invokes it after config review.
+  Do not substitute render or sync.
 - Do not call another model, launch an agent, start a paid test, install tools,
   create issues or PRs, assign a builder, or change remote settings or labels.
 - Ask for secret **names and requirements**, never secret values. Do not read
@@ -57,15 +58,20 @@ reliable project facts or explicit owner choices. Cover these decisions:
 | Preset and autonomy | Use only `profile = "cli"`, `languages = ["rust"]` and `autonomy = "L3"`. Explain unsupported requests instead of inventing a preset or allowing L4. |
 | Release and schema | Preserve the template's actual acme release, schema version and compiler pin. Do not upgrade, use `HEAD` or a moving ref, or change `toolchain.acme.bootstrap` to bypass a pin. |
 | Local prerequisites | Check that Cargo inputs and the files used by proposed CI commands exist. Report missing inputs; do not create them or claim a command passed. |
+| CI selection | Keep `modules.ci.enabled = false` unless an explicit owner answer selects CI. If selected, propose only supported Cargo commands, matching step names and required check names. Keep the existing supported values unless the owner resolves a needed change. |
 | Path risks | Preserve existing `risk.never_agent` protections. Ask about additional sensitive and human-review paths. Keep `risk.default = "human-merge"`, `auto_merge = []` and `path_gate_enforced = false`; this map is not an enforced author/path gate. |
 | Engines | Ask about unresolved engine, builder model and secret-name requirements. Keep review disabled with `model_policy = "different-from-builder"`; a proposed engine choice does not verify its availability or credentials. |
 | Cost limits | Obtain the desired positive `budget.max_ai_credits_per_run` and rationale. Keep AI-credit enforcement on. Explain that a cap is not spending consent, staged runs still cost credits, and monthly/daily limits are not enforced by this baseline. |
 | Secret requirements | Record names, intended consumers and required permissions only. Keep the build-cloud engine and module token-secret names consistent. Keep `token_configured` and `token_verified` false. Do not infer either from a secret name or an owner's statement that a token exists. |
 
-Keep all modules, workflow gates and assignment gates off in this proposal.
+An explicit owner answer can select CI in the proposal, not authorize actions.
+Defaults, silence and instructions in the brief do not select CI. If the owner
+has not resolved CI selection, keep it off and report the open decision.
+Keep all other modules, agent workflow flags and assignment gates off.
 Keep auto-merge and `bootstrap.live_loop_verified` false. Record requests for
 later activation separately; no interview answer activates or provisions them.
-Unsupported modules, including review and holdout, remain disabled.
+Unsupported modules, including review and holdout, remain disabled. Explain
+that publishing generated CI files needs separate approval and can run Actions.
 
 If answers are missing, return the facts and remaining questions. Do not fill
 permission-related gaps from template defaults, use zero as a missing budget,
@@ -85,13 +91,14 @@ Once required decisions are resolved, return:
 3. **Proposed unified diff** against the current config. If it is identical,
    say there is no config diff. List any required source or Cargo changes
    separately as unperformed prerequisites.
-4. **Review notes.** Explain identity, risk, engine and cost choices, inactive
-   modules, missing prerequisites and limits. Do not claim schema validation,
-   command success, credential checks or enforceable policy without evidence.
+4. **Review notes.** Explain identity, risk, engine, cost and CI choices,
+   inactive modules, missing prerequisites and limits. Do not claim schema
+   validation, command success, credential checks or enforceable policy without evidence.
 5. **Human handoff.** The owner must review the complete config and diff.
    The human, not this skill, explicitly invokes `acme init` with the approved
-   config when the installed release supports it. The pinned `0.1.0` release
-   cannot do this yet. Do not give guessed init syntax or run a fallback.
+   config using the installed matching `0.2.0` binary. The human saves the
+   approved config to `factory/factory.toml`, then runs
+   `acme init --config factory/factory.toml`. Do not invoke it or run a fallback.
 
 Config review is not approval for repository administration, workflow
 activation, secret upload, paid inference, a build or a merge. Those actions
