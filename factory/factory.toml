@@ -9,7 +9,7 @@ solo = true
 
 [toolchain.acme]
 bootstrap = false
-target_version = "0.1.0"
+target_version = "0.2.0"
 
 [toolchain.gh_aw]
 version = "v0.93.5"
@@ -129,7 +129,7 @@ milestone = "M4"
 golden_source = "template-baseline"
 live_loop_verified = false
 deferred = [
-  "deterministic init",
+  "sample-project acceptance",
   "agent workflows",
   "owner-approved generation and provisioning",
 ]

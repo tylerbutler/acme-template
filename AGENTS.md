@@ -17,7 +17,7 @@ tests for changed behavior.
 - `tests/`: CLI behavior tests.
 - `factory/brief.md`: authored project brief.
 - `factory/factory.toml`: complete config stub for owner review.
-- `schema/factory.schema.json`: exact acme stage0 schema; do not edit by hand.
+- `schema/factory.schema.json`: exact pinned acme schema; do not edit by hand.
 - `docs/specs/`: reviewed feature specifications.
 - `docs/adr/`: architecture decisions.
 - `.agents/skills/init-interview/`: read-only config interview and proposal.
@@ -36,14 +36,18 @@ never approve, merge or enable auto-merge.
 
 All modules start off. Do not enable them, activate workflows, assign a
 builder, upload secrets, or run paid tests without separate owner approval.
+The interview may propose CI only after an explicit owner answer selects it.
+All other modules and agent workflow/assignment flags remain off. A proposal
+does not authorize generation or publication of a workflow.
 Ask for secret names and requirements, never secret values. Never commit
 credentials or private holdout scenarios.
 
 The owner must review the complete config and diff before local generation.
 Do not run init, sync, doctor repairs or provisioning without separate
 approval. Local render checks use a temporary output directory only.
-Acme `0.1.0` has no init implementation. Do not invent flags or claim that
-generation completes provisioning.
+Acme `0.2.0` supports local `acme init --config factory/factory.toml`.
+The human saves the reviewed config and explicitly invokes init. Do not
+invent flags or claim that generation completes provisioning.
 
 Do not change paths in `risk.never_agent`. The risk map is an instruction,
 not an enforced author/path gate. Unsupported modules stay disabled.
